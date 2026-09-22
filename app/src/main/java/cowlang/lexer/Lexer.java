@@ -131,9 +131,10 @@ public class Lexer{
 					addToken(TokenType.NOT_EQUAL);
 				} else{
 					throw new RuntimeException(
-						"Unexpected '1' at " + line + ":" + startColumn
+						"Unexpected '!' at " + line + ":" + startColumn
 					);
 				}
+				break;
 				
 			case '~':
 				if(match('>')){
@@ -146,10 +147,14 @@ public class Lexer{
 				break;
 				
 			default:
-				throw new RuntimeException(
-					"Unexpected character '" + c +
-					"' at " + line + ":" + startColumn
-				);
+				if(Character.isDigit(c)){
+					number();
+				} else{
+					throw new RuntimeException(
+						"Unexpected character '" + c +
+						"' at " + line + ":" + startColumn
+					);
+				}
 		}
 
 		 
@@ -178,6 +183,13 @@ public class Lexer{
 		return c;
 	}
 	
+	private void number(){
+		while(!isAtEnd() && Character.isDigit(source.charAt(current))){
+			advance();
+		}
+		
+		addToken(TokenType.INTEGER);
+	}
 	
 	private boolean isAtEnd(){
 		return current >= source.length();
