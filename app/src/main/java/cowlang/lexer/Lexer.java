@@ -94,6 +94,57 @@ public class Lexer{
 				column = 1;
 				break;
 				
+			case '<':
+				if(match('-')){
+					addToken(TokenType.ASSIGN);
+				} else if(match('=')){
+					addToken(TokenType.LESS_EQUAL);
+				} else{
+					addToken(TokenType.LESS);
+				}
+				break;
+				
+				
+			case '>':
+				if (match('=')) {
+					addToken(TokenType.GREATER_EQUAL);
+				} else {
+					addToken(TokenType.GREATER);
+				}
+				break;
+				
+				
+			case '=':
+				if(match('=')){
+					addToken(TokenType.EQUAL_EQUAL);
+				}else{
+					throw new RuntimeException(
+					"Unexpected '=' at " + line + ":" + startColumn +
+					". Did you mean '=='?"
+					);
+				}
+				break;
+				
+				
+			case '!':
+				if(match('=')){
+					addToken(TokenType.NOT_EQUAL);
+				} else{
+					throw new RuntimeException(
+						"Unexpected '1' at " + line + ":" + startColumn
+					);
+				}
+				
+			case '~':
+				if(match('>')){
+					addToken(TokenType.FUNCTION_ARROW);
+				} else{
+						throw new RuntimeException(
+							"Unexpeceted '~' at " + line + ":" + startColumn + ". Did you mean '~>'?"
+						);
+				}
+				break;
+				
 			default:
 				throw new RuntimeException(
 					"Unexpected character '" + c +
@@ -104,6 +155,20 @@ public class Lexer{
 		 
 	}
 	
+	private boolean match(char expected){
+		if(isAtEnd()){
+			return false;
+		}
+		
+		if(source.charAt(current) != expected){
+			return false;
+		}
+		
+		current++;
+		column++;
+		
+		return true;
+	}
 	
 	private char advance(){
 		char c = source.charAt(current);
