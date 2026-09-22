@@ -52,7 +52,11 @@ public class Lexer{
 				break;
 				
 			case '/':
-				addToken(TokenType.SLASH);
+				if(match('/')){
+					comment();
+				} else{
+					addToken(TokenType.SLASH);
+				}
 				break;
 				
             case '(':
@@ -146,6 +150,10 @@ public class Lexer{
 				}
 				break;
 				
+			case '"':
+				string();
+				break;
+				
 			default:
 				if(Character.isDigit(c)){
 					number();
@@ -188,6 +196,12 @@ public class Lexer{
 	private boolean isIdentifierCharacter(char c) {
 		return Character.isLetterOrDigit(c) || c == '_';
 	}
+	private void comment(){
+		while (!isAtEnd() && source.charAt(current) != '\n') {
+			advance();
+		}	
+	}
+	
 	
 	private void identifier(){
 		while(!isAtEnd() && isIdentifierCharacter(source.charAt(current))){
@@ -230,6 +244,28 @@ public class Lexer{
 		tokens.add(
 			new Token(type, lexeme, line, startColumn)
 		);
+	}
+	
+	private void string(){
+		while(!isAtEnd() && source.charAt(current) != '"'){
+			if(source.charAt(current) == '\n'){
+				throw new RuntimeException(
+					"Unterminated string at " + line + ":" + startColumn
+				);
+			} 
+			
+			advance();
+		}
+		
+		if(isAtEnd()){
+			throw new RuntimeException(
+				"Unterminated string at " + line + ":" + startColumn
+			);
+		}
+		
+		advance();
+		addToken(TokenType.STRING);
+
 	}
 	
 }

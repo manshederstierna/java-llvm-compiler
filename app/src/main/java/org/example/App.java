@@ -9,7 +9,14 @@ public class App {
     public static void main(String[] args) {
         System.out.println("cowlang lexer test");
 
-        String source = "<- ~> == 1 123 15616 51616200 hej jalla yell ; homie";
+		String source = """
+			// cowlang lexer test
+
+			x <- 100;
+			y <- x / 5; // division
+
+			yell y;
+        """;
 
         Lexer lexer = new Lexer(source);
         List<Token> tokens = lexer.tokenize();
