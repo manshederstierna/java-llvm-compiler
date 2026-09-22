@@ -17,7 +17,7 @@ public enum TokenType {
     WHISPER,
     RETURN,
 
-    // Special cowlang operators
+    // Special operators
     ASSIGN,          // <-
     FUNCTION_ARROW,  // ~>
 
