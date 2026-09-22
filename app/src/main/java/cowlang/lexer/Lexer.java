@@ -149,6 +149,8 @@ public class Lexer{
 			default:
 				if(Character.isDigit(c)){
 					number();
+				} else if(Character.isLetter(c) || c == '_'){
+					identifier();
 				} else{
 					throw new RuntimeException(
 						"Unexpected character '" + c +
@@ -182,6 +184,33 @@ public class Lexer{
 		
 		return c;
 	}
+	
+	private boolean isIdentifierCharacter(char c) {
+		return Character.isLetterOrDigit(c) || c == '_';
+	}
+	
+	private void identifier(){
+		while(!isAtEnd() && isIdentifierCharacter(source.charAt(current))){
+			advance();
+		}
+		
+		String text = source.substring(start,current);
+		
+		TokenType type = switch(text){
+			case "when" -> TokenType.WHEN;
+			case "otherwise" -> TokenType.OTHERWISE;
+			case "loop" -> TokenType.LOOP;
+			case "times" -> TokenType.TIMES;
+			case "while" -> TokenType.WHILE;
+			case "yell" -> TokenType.YELL;
+			case "whisper" -> TokenType.WHISPER;
+			case "return" -> TokenType.RETURN;
+			
+			default -> TokenType.IDENTIFIER;
+		};
+		addToken(type);
+	}
+
 	
 	private void number(){
 		while(!isAtEnd() && Character.isDigit(source.charAt(current))){
