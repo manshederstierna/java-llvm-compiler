@@ -12,11 +12,14 @@ public class App {
 
 		String source = """
 			x <- 10;
-			y <- x * 2;
 
-			yell x;
-			whisper y + 5;
-			yell x > 5;
+			when (x == 5) {
+				yell "big";
+			;} otherwise {
+				yell "small";
+			;}
+
+			yell "done";
         """;
 
         Lexer lexer = new Lexer(source);

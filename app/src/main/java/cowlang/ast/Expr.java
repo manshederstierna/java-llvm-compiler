@@ -1,3 +1,3 @@
 package cowlang.ast;
 
-public sealed interface Expr permits IntegerLiteral,VariableExpr, BinaryExpr{}
+public sealed interface Expr permits IntegerLiteral,StringLiteral, VariableExpr, BinaryExpr{}

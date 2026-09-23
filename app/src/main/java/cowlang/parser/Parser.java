@@ -1,16 +1,21 @@
 package cowlang.parser;
 
-import cowlang.ast.AssignmentStmt;
-import cowlang.ast.Expr;
+
 import cowlang.ast.IntegerLiteral;
-import cowlang.ast.Stmt;
+import cowlang.ast.StringLiteral;
 import cowlang.lexer.Token;
 import cowlang.lexer.TokenType;
+
+import cowlang.ast.Expr;
 import cowlang.ast.BinaryExpr;
 import cowlang.ast.BinaryOperator;
 import cowlang.ast.VariableExpr;
+
+import cowlang.ast.AssignmentStmt;
+import cowlang.ast.Stmt;
 import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
+import cowlang.ast.WhenStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +44,51 @@ public class Parser{
 	private Stmt parseStatement(){
 		if(match(TokenType.YELL)){
 			return parseYellStatement();
-		} else if(match(TokenType.WHISPER)){
+		} 
+		if(match(TokenType.WHISPER)){
 			return parseWhisperStatement();
 		} 
 		
+		if(match(TokenType.WHEN)){
+			return parseWhenStatement();
+		}
+		
 		return parseAssignment();
+	}
+	
+	private Stmt parseWhenStatement(){
+		consume(TokenType.LEFT_PAREN, "Expected '(' after 'when'.");
+		
+		Expr condition = parseExpression();
+		
+		consume(TokenType.RIGHT_PAREN, "Expected ')' after when condition.");
+		
+		List<Stmt> thenBranch = parseBlock();
+		List<Stmt> otherwiseBranch = List.of();
+		
+		if(match(TokenType.OTHERWISE)){
+			otherwiseBranch = parseBlock();
+		}
+		
+		return new WhenStmt(condition, thenBranch, otherwiseBranch);
+		
+	}
+	
+	private List<Stmt> parseBlock(){
+		consume(TokenType.LEFT_BRACE, "Expected '{' to start block.");
+		
+		List<Stmt> statements = new ArrayList<>();
+		
+		while(!check(TokenType.SEMICOLON) && !isAtEnd()){
+			statements.add(parseStatement());
+		}
+		
+		consume(TokenType.SEMICOLON,"Expected ';' before '}' at end of block.");
+		 
+		consume(TokenType.RIGHT_BRACE, "Expected '}' to end block.");
+		
+		return statements;
+
 	}
 	
 	private Stmt parseYellStatement(){
@@ -57,7 +102,7 @@ public class Parser{
 	private Stmt parseWhisperStatement(){
 		Expr value = parseExpression();
 		
-		consume(TokenType.SEMICOLON, "Expected ';' after yell statement.");
+		consume(TokenType.SEMICOLON, "Expected ';' after whisper statement.");
 		
 		return new WhisperStmt(value);
 	}
@@ -169,6 +214,12 @@ public class Parser{
 			int value = Integer.parseInt(previous().lexeme());
 			
 			return new IntegerLiteral(value);
+		}
+		
+		if(match(TokenType.STRING)){
+			String lexeme = previous().lexeme();
+			String value = lexeme.substring(1,lexeme.length() - 1);
+			return new StringLiteral(value);
 		}
 		
 		if(match(TokenType.IDENTIFIER)){
