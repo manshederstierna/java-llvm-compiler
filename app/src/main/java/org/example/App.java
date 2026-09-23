@@ -12,8 +12,11 @@ public class App {
 
 		String source = """
 			x <- 10;
-			y <- x + 20 * 3;
-			z <- (x + 20) * 3;
+			y <- x * 2;
+
+			yell x;
+			whisper y + 5;
+			yell x > 5;
         """;
 
         Lexer lexer = new Lexer(source);

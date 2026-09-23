@@ -9,6 +9,8 @@ import cowlang.lexer.TokenType;
 import cowlang.ast.BinaryExpr;
 import cowlang.ast.BinaryOperator;
 import cowlang.ast.VariableExpr;
+import cowlang.ast.YellStmt;
+import cowlang.ast.WhisperStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +29,37 @@ public class Parser{
 		List<Stmt> statements = new ArrayList<>();
 		
 		while(!isAtEnd()){
-			statements.add(parseStatements());
+			statements.add(parseStatement());
 		}
 		
 		return statements;
 	}
 	
 	
-	private Stmt parseStatements(){
+	private Stmt parseStatement(){
+		if(match(TokenType.YELL)){
+			return parseYellStatement();
+		} else if(match(TokenType.WHISPER)){
+			return parseWhisperStatement();
+		} 
+		
 		return parseAssignment();
+	}
+	
+	private Stmt parseYellStatement(){
+		Expr value = parseExpression();
+		
+		consume(TokenType.SEMICOLON, "Expected ';' after yell statement.");
+		
+		return new YellStmt(value);
+	}
+	
+	private Stmt parseWhisperStatement(){
+		Expr value = parseExpression();
+		
+		consume(TokenType.SEMICOLON, "Expected ';' after yell statement.");
+		
+		return new WhisperStmt(value);
 	}
 	
 	private Stmt parseAssignment(){
@@ -61,7 +85,41 @@ public class Parser{
 	
 	
 	private Expr parseExpression(){
-		return parseAddition();
+		return parseComparison();
+	}
+	
+	private Expr parseComparison(){
+		Expr expression = parseAddition();
+		
+		while (match(
+            TokenType.EQUAL_EQUAL,
+            TokenType.NOT_EQUAL,
+            TokenType.LESS,
+            TokenType.LESS_EQUAL,
+            TokenType.GREATER,
+            TokenType.GREATER_EQUAL
+		)) {
+			Token operator = previous();
+			Expr right = parseAddition();
+			
+			BinaryOperator binaryOperator = switch (operator.type()){
+				case EQUAL_EQUAL -> BinaryOperator.EQUAL;
+				case NOT_EQUAL -> BinaryOperator.NOT_EQUAL;
+				case LESS -> BinaryOperator.LESS;
+				case LESS_EQUAL -> BinaryOperator.LESS_EQUAL;
+				case GREATER -> BinaryOperator.GREATER;
+				case GREATER_EQUAL -> BinaryOperator.GREATER_EQUAL;
+				
+				default -> throw new IllegalStateException("Unexpected comparison operator: " + operator.type());
+			};
+			
+			expression = new BinaryExpr(
+                expression,
+                binaryOperator,
+                right
+			);
+		}
+		return expression;
 	}
 	
 	private Expr parseAddition(){
