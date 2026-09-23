@@ -1,4 +1,4 @@
-package cowlang.parser
+package cowlang.parser;
 
 import cowlang.ast.AssignmentStmt;
 import cowlang.ast.Expr;
@@ -6,6 +6,9 @@ import cowlang.ast.IntegerLiteral;
 import cowlang.ast.Stmt;
 import cowlang.lexer.Token;
 import cowlang.lexer.TokenType;
+import cowlang.ast.BinaryExpr;
+import cowlang.ast.BinaryOperator;
+import cowlang.ast.VariableExpr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,17 +61,83 @@ public class Parser{
 	
 	
 	private Expr parseExpression(){
-		Token token = consume(
-			TokenType.INTEGER,
-			"Expected integer expression."
-		);
-		
-		int value = Integer.parseInt(token.lexeme());
-		
-		return new IntegerLiteral(value);
-		
+		return parseAddition();
 	}
 	
+	private Expr parseAddition(){
+		Expr expression = parseMultiplication();
+		
+		while(match(TokenType.PLUS, TokenType.MINUS)){
+			Token operator = previous();
+			Expr right = parseMultiplication();
+			
+			BinaryOperator binaryOperator;
+			
+			if(operator.type() == TokenType.PLUS){
+				binaryOperator = BinaryOperator.ADD;
+			} else{
+				binaryOperator = BinaryOperator.SUBTRACT;
+			}
+			
+			expression = new BinaryExpr(expression, binaryOperator, right);
+		}
+		
+		return expression;
+	}
+	
+	private Expr parseMultiplication(){
+		Expr expression = parsePrimary();
+		
+		while(match(TokenType.STAR, TokenType.SLASH)){
+			Token operator = previous();
+			Expr right = parsePrimary();
+			
+			BinaryOperator binaryOperator;
+			
+			if(operator.type() == TokenType.STAR){
+				binaryOperator = BinaryOperator.MULTIPLY;
+			} else{
+				binaryOperator = BinaryOperator.DIVIDE;
+			}
+			
+			expression = new BinaryExpr(expression, binaryOperator, right);
+		}
+		
+		return expression;
+	}
+	
+	private Expr parsePrimary(){
+		if(match(TokenType.INTEGER)){
+			int value = Integer.parseInt(previous().lexeme());
+			
+			return new IntegerLiteral(value);
+		}
+		
+		if(match(TokenType.IDENTIFIER)){
+			return new VariableExpr(previous().lexeme());
+		}
+		
+		if(match(TokenType.LEFT_PAREN)){
+			Expr expression = parseExpression();
+			
+			consume(TokenType.RIGHT_PAREN, "Expected ')' after expression");
+			return expression;
+		}
+		
+		throw error(peek(),"Expected expression.");
+	}
+	
+	
+	private boolean match(TokenType... types){
+		for(TokenType type : types){
+			if(check(type)){
+				advance();
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	private Token consume(TokenType type, String message){
 		if(check(type)){
 			return advance();
