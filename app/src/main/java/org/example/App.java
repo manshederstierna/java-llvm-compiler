@@ -6,20 +6,17 @@ import cowlang.ast.Stmt;
 import cowlang.parser.Parser;
 import java.util.List;
 
-public class App {
-    public static void main(String[] args) {
-        System.out.println("cowlang lexer test");
+import cowlang.codegen.LlvmIrGenerator;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class App {
+    public static void main(String... args) throws Exception {
 		String source = """
 			x <- 10;
-
-			when (x == 5) {
-				yell "big";
-			;} otherwise {
-				yell "small";
-			;}
-
-			yell "done";
+			y <- x * 2 + 5;
+			yell y;
         """;
 
         Lexer lexer = new Lexer(source);
@@ -27,8 +24,11 @@ public class App {
 		Parser parser = new Parser(tokens);
 		List<Stmt> statements = parser.parse();
 		
-        for (Stmt statement : statements) {
-            System.out.println(statement);
-        }
+		LlvmIrGenerator generator = new LlvmIrGenerator();
+		String llvmIr = generator.generate(statements);
+		System.out.println(llvmIr);
+		
+		Files.writeString(Path.of("program.ll"),llvmIr);
+		
     }
 }

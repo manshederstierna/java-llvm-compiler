@@ -12,12 +12,12 @@ import cowlang.ast.WhisperStmt;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map
+import java.util.Map;
 
 public class LlvmIrGenerator{
 	private final StringBuilder output = new StringBuilder();
 	
-	private final Map<String, String> varibles = new HashMap<>();
+	private final Map<String, String> variables = new HashMap<>();
 	
 	private int temporaryCounter = 0;
 	
@@ -74,7 +74,7 @@ public class LlvmIrGenerator{
 		} 
 		
 		if(statement instanceof YellStmt yell){
-			generateYell(yell)
+			generateYell(yell);
 			return;
 		}
 		
@@ -97,7 +97,7 @@ public class LlvmIrGenerator{
 		
 		if(pointer == null){
 			pointer = "%var." + assignment.name();
-			variable.put(assignment, pointer);
+			variables.put(assignment.name(), pointer);
 			
 			output.append(" " + pointer + " = alloca i32\n");
 		}
@@ -105,9 +105,105 @@ public class LlvmIrGenerator{
 		output.append(
 			" store i32 "
 				+ value
-				+ ", ptr"
+				+ ", ptr "
 				+ pointer
 				+ "\n"
 		);
+	}
+	
+	private String generateExpression(Expr expression){
+		if(expression instanceof IntegerLiteral integer){
+			return Integer.toString(integer.value());
+		}
+		
+		if(expression instanceof VariableExpr variable){
+			return generateVariableExpression(variable);
+		}
+		
+		if(expression instanceof BinaryExpr binary){
+			return generateBinaryExpression(binary);
+		}
+		
+		throw new RuntimeException("LLVM generation now yet implemented for expression: " + expression.getClass().getSimpleName());
+	}
+	
+	private String generateVariableExpression(VariableExpr variable){
+		String pointer = variables.get(variable.name());
+		
+		if(pointer == null){
+			throw new RuntimeException("Unknown variable: " + variable.name());
+		}
+		
+		String temporary = nextTemporary();
+		
+		output.append(
+			" "
+			+ temporary
+			+ " = load i32, ptr "
+			+ pointer 
+			+ "\n"
+		);
+		
+		return temporary;
+	}
+	
+	private String generateBinaryExpression(BinaryExpr binary){
+		String left = generateExpression(binary.left());
+		String right = generateExpression(binary.right());
+		
+		String instruction = switch(binary.operator()){
+			case ADD -> "add";
+			case SUBTRACT -> "sub";
+			case MULTIPLY -> "mul";
+			case DIVIDE -> "sdiv";
+			
+			default -> throw new RuntimeException("LLVM for this binary operator not yet implemented: operator = " + binary.operator());
+		};
+		
+		String temporary = nextTemporary();
+		
+		output.append(
+			" "
+				+ temporary
+				+ " = "
+				+ instruction
+				+ " i32 "
+				+ left 
+				+ ", "
+				+ right
+				+ "\n"
+		);
+		
+		return temporary;
+	}
+	
+	private void generateYell(YellStmt yell){
+		String value = generateExpression(yell.value());
+		
+		output.append(
+			" call i32 (ptr, ...) @printf("
+						+ "ptr @.fmt.yell, i32 "
+						+ value
+						+ ")\n"
+		);
+	}
+	
+	private void generateWhisper(WhisperStmt whisper){
+		String value = generateExpression(whisper.value());
+		
+		output.append(
+			" call i32 (ptr, ...) @printf("
+						+ "ptr @.fmt.whisper, i32 "
+						+ value
+						+ ")\n"
+		);
+	}
+	
+	private String nextTemporary(){
+		String name = "%tmp." + temporaryCounter;
+		
+		temporaryCounter++;
+		
+		return name;
 	}
 }
