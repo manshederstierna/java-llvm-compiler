@@ -11,24 +11,52 @@ import cowlang.codegen.LlvmIrGenerator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.io.IOException;
+
+
 public class App {
     public static void main(String... args) throws Exception {
-		String source = """
-			x <- 10;
-			y <- x * 2 + 5;
-			yell y;
-        """;
+		if(args.length != 1){
+			System.err.println("Usage: cowlang <file.cow>");
+			System.exit(1);
+		}
+		
+		Path sourcePath = Path.of(args[0]);
+		
+		String source;
+		
+		try{
+			source = Files.readString(sourcePath);
+		} catch (IOException e){
+			System.err.println("Could not read file:" + args[0]);
+			System.exit(1);
+			return;
+		}
+		
+		String fileName = sourcePath.getFileName().toString();
+		String baseName;
+		
+		if(fileName.endsWith(".cow")){
+			baseName = fileName.substring(0, fileName.length() - 4);
+		} else{
+			System.err.println("cowlang compiler can only compile .cow files, please try again");
+			System.exit(1);
+			return;
+		}
+		
+		Path outputPath = sourcePath.resolveSibling(baseName + ".ll");
 
         Lexer lexer = new Lexer(source);
         List<Token> tokens = lexer.tokenize();
+		
 		Parser parser = new Parser(tokens);
 		List<Stmt> statements = parser.parse();
 		
 		LlvmIrGenerator generator = new LlvmIrGenerator();
 		String llvmIr = generator.generate(statements);
-		System.out.println(llvmIr);
 		
-		Files.writeString(Path.of("program.ll"),llvmIr);
+		Files.writeString(outputPath,llvmIr);
+		System.out.println("Generated: " + outputPath);
 		
     }
 }
