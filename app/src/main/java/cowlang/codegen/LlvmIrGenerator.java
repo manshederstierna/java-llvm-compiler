@@ -147,28 +147,31 @@ public class LlvmIrGenerator{
 		return temporary;
 	}
 	
+	
 	private String generateBinaryExpression(BinaryExpr binary){
 		String left = generateExpression(binary.left());
 		String right = generateExpression(binary.right());
-	
-		String instruction = switch(binary.operator()){
-			case ADD -> "add";
-			case SUBTRACT -> "sub";
-			case MULTIPLY -> "mul";
-			case DIVIDE -> "sdiv";
-			case GREATER -> "icmp sgt";
-			case GREATER_EQUAL -> "icmp sge";
-			case LESS -> "icmp slt";
-			case LESS_EQUAL -> "icmp sle";
-			case EQUAL -> "icmp eq";
-			case NOT_EQUAL -> "icmp ne";
-			
-			default -> throw new RuntimeException("LLVM for this binary operator not yet implemented: operator = " + binary.operator());
+		boolean arithmetic = switch(binary.operator()){
+			case ADD -> true;
+			case SUBTRACT -> true;
+			case MULTIPLY -> true;
+			case DIVIDE -> true;
+			default -> false;
 		};
 		
-		String temporary = nextTemporary();
-		output.append(
-			" "
+		if(arithmetic){
+			String temporary = nextTemporary();
+			String instruction = switch(binary.operator()){
+				case ADD -> "add";
+				case SUBTRACT -> "sub";
+				case MULTIPLY -> "mul";
+				case DIVIDE -> "sdiv";
+
+				default -> throw new RuntimeException("LLVM for this binary operator not yet implemented: operator = " + binary.operator());
+			};
+			
+			output.append(
+				" "
 				+ temporary
 				+ " = "
 				+ instruction
@@ -177,9 +180,46 @@ public class LlvmIrGenerator{
 				+ ", "
 				+ right
 				+ "\n"
-		);
-		
-		return temporary;
+			);
+			return temporary;
+		} else{
+			String comparisonTemporary = nextTemporary();
+			String instruction = switch(binary.operator()){
+				case GREATER -> "icmp sgt";
+				case GREATER_EQUAL -> "icmp sge";
+				case LESS -> "icmp slt";
+				case LESS_EQUAL -> "icmp sle";
+				case EQUAL -> "icmp eq";
+				case NOT_EQUAL -> "icmp ne";
+				
+				default -> throw new RuntimeException("LLVM for this binary operator not yet implemented: operator = " + binary.operator());
+			};
+			
+			output.append(
+				" "
+				+ comparisonTemporary
+				+ " = "
+				+ instruction
+				+ " i32 "
+				+ left 
+				+ ", "
+				+ right
+				+ "\n"
+			);
+			
+			String resultTemporary = nextTemporary();
+			
+			output.append(
+				resultTemporary
+				+
+				" = zext i1 "
+				+
+				comparisonTemporary
+				+
+				" to i32"
+			);
+			return resultTemporary;
+		}
 	}
 	
 	private void generateYell(YellStmt yell){
