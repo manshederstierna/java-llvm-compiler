@@ -150,18 +150,23 @@ public class LlvmIrGenerator{
 	private String generateBinaryExpression(BinaryExpr binary){
 		String left = generateExpression(binary.left());
 		String right = generateExpression(binary.right());
-		
+	
 		String instruction = switch(binary.operator()){
 			case ADD -> "add";
 			case SUBTRACT -> "sub";
 			case MULTIPLY -> "mul";
 			case DIVIDE -> "sdiv";
+			case GREATER -> "icmp sgt";
+			case GREATER_EQUAL -> "icmp sge";
+			case LESS -> "icmp slt";
+			case LESS_EQUAL -> "icmp sle";
+			case EQUAL -> "icmp eq";
+			case NOT_EQUAL -> "icmp ne";
 			
 			default -> throw new RuntimeException("LLVM for this binary operator not yet implemented: operator = " + binary.operator());
 		};
 		
 		String temporary = nextTemporary();
-		
 		output.append(
 			" "
 				+ temporary
