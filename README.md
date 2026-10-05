@@ -395,6 +395,10 @@ The goal of the project is to explore and implement the major components of a co
 
 Rather than relying on a parser generator or an existing compiler frontend, the major compiler stages are implemented manually in order to better understand how they work.
 
-## License
+## Resources
 
-This project is currently developed for educational and experimental purposes.
+A useful resource for learning how to build a first compiler frontend with LLVM is the official LLVM tutorial:
+
+- [LLVM — My First Language Frontend with LLVM](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
+
+The tutorial walks through many of the same core compiler concepts used in this project, including lexing, parsing, AST construction, and LLVM IR generation.
