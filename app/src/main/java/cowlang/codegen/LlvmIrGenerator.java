@@ -20,6 +20,7 @@ public class LlvmIrGenerator{
 	private final Map<String, String> variables = new HashMap<>();
 	
 	private int temporaryCounter = 0;
+	private int labelCounter = 0;
 	
 	public String generate(List<Stmt> statements){
 		output.setLength(0);
@@ -80,6 +81,11 @@ public class LlvmIrGenerator{
 		
 		if(statement instanceof WhisperStmt whisper){
 			generateWhisper(whisper);
+			return;
+		}
+		
+		if(statement instanceof WhenStmt when){
+			generateWhen(when);
 			return;
 		}
 		
@@ -216,7 +222,9 @@ public class LlvmIrGenerator{
 				+
 				comparisonTemporary
 				+
-				" to i32"
+				" to i32 "
+				+
+				"\n"
 			);
 			return resultTemporary;
 		}
@@ -244,6 +252,25 @@ public class LlvmIrGenerator{
 		);
 	}
 	
+	private void generateWhen(WhenStmt when){
+		String value = generateExpression(when.condition());
+		String temporary = nextTemporary();
+		
+		//llvm instruction that checks if the condition is true (i1, not i32)
+		String condInstruction = temporary + " = " + " icmp ne i32 " + value + ", 0"; 
+		
+		output.append(condInstruction);
+		int labelId = nextLabelId();
+		
+		String label1 = "then." + labelId
+		String label2 = "else." + labelId
+		String label3 = "end." + labelId
+		
+		output.append("br i1 " + temporary + ", " + "label %" + label1 + ", label %" + label2 + "\n");
+		
+		
+	}
+	
 	private String nextTemporary(){
 		String name = "%tmp." + temporaryCounter;
 		
@@ -251,4 +278,9 @@ public class LlvmIrGenerator{
 		
 		return name;
 	}
+	
+	private int nextLabelId(){
+		return labelCounter++;
+	}
+	
 }
