@@ -1,3 +1,28 @@
-x <- 3 > 4;
-x <- x + (4 > 3);
+x <- 4;
+y <- 3;
+
+z <- x * y + 2;
+a <- z;
+b <- a + a + z;
+
+yell a;
+yell b;
+yell z;
+
+when (z >= 14) {
+    x <- x + 6;
+    yell x;
+;} otherwise {
+    x <- x - 2;
+    yell x;
+;}
+
+
+when(b > a){
+	yell b;
+	b <- b + 1;
+;} otherwise {;}
+
+yell a;
+yell b;
 yell x;

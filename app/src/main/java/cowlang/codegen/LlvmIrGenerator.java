@@ -9,6 +9,7 @@ import cowlang.ast.Stmt;
 import cowlang.ast.VariableExpr;
 import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
+import cowlang.ast.WhenStmt;
 
 import java.util.HashMap;
 import java.util.List;
@@ -259,16 +260,28 @@ public class LlvmIrGenerator{
 		//llvm instruction that checks if the condition is true (i1, not i32)
 		String condInstruction = temporary + " = " + " icmp ne i32 " + value + ", 0"; 
 		
-		output.append(condInstruction);
+		output.append(condInstruction + "\n");
 		int labelId = nextLabelId();
 		
-		String label1 = "then." + labelId
-		String label2 = "else." + labelId
-		String label3 = "end." + labelId
+		String label1 = "then." + labelId;
+		String label2 = "else." + labelId;
+		String label3 = "end." + labelId;
 		
 		output.append("br i1 " + temporary + ", " + "label %" + label1 + ", label %" + label2 + "\n");
 		
+		output.append(label1 + ":" + "\n");
+		for(Stmt stmt : when.thenBranch()){
+			generateStatement(stmt);
+		}
+		output.append("\n br label %" + label3  + "\n"); 
 		
+		output.append(label2 + ":" + "\n");
+		for(Stmt stmt : when.otherwiseBranch()){
+			generateStatement(stmt);
+		}
+		output.append("\n br label %" + label3 + "\n"); 
+		
+		output.append(label3 + ":" + "\n");
 	}
 	
 	private String nextTemporary(){
