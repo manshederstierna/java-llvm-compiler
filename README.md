@@ -40,7 +40,7 @@ cowlang currently supports:
 - Parentheses
 - `yell` for output with a newline
 - `whisper` for output without a newline
-- `when` / `otherwise` parsing
+- `when` / `otherwise` control flow
 - `//` comments
 
 ### Assignment
@@ -355,6 +355,7 @@ Working features include:
 - Integer output
 - LLVM IR generation
 - Native compilation through LLVM and Clang
+- Conditional control flow using LLVM basic blocks and branches
 
 Some syntax is already represented in the frontend but does not yet have complete LLVM code generation.
 
@@ -362,7 +363,6 @@ Some syntax is already represented in the frontend but does not yet have complet
 
 Future work includes:
 
-- LLVM control flow for `when` / `otherwise`
 - `while` loops
 - `loop N times`
 - Functions using `~>`
