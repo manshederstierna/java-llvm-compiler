@@ -338,42 +338,6 @@ compile.sh
 
 The Bash version provides the equivalent compilation workflow on Linux.
 
-## Project structure
-
-The project is roughly organized as:
-
-```text
-app/
-├── examples/
-│   └── hello.cow
-│
-└── src/main/java/
-    ├── cowlang/
-    │   ├── ast/
-    │   ├── codegen/
-    │   ├── lexer/
-    │   └── parser/
-    │
-    └── org/example/
-        └── App.java
-```
-
-### `lexer`
-
-Contains token definitions and source-code tokenization.
-
-### `parser`
-
-Contains the recursive-descent parser.
-
-### `ast`
-
-Contains the abstract syntax tree representation.
-
-### `codegen`
-
-Contains the LLVM IR backend.
-
 ## Current status
 
 The compiler can currently compile basic integer programs from cowlang source code into LLVM IR and then into native executables.
