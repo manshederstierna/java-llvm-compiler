@@ -419,4 +419,4 @@ For a deeper understanding of compiler design and implementation:
 
 - **Andrew W. Appel — *Modern Compiler Implementation in C (1998)***
 
-Although the book uses C rather than Java, its discussion of compiler fundamentals is largely language-agnostic. It covers topics such as lexical analysis, parsing, abstract syntax trees, semantic analysis and more. 
+Although the book uses C rather than Java (there exists a book by the same author for Java, but I do not own that book unfortunately), its discussion of compiler fundamentals is largely language-agnostic. It covers topics such as lexical analysis, parsing, abstract syntax trees, semantic analysis and more. 
