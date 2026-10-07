@@ -397,8 +397,26 @@ Rather than relying on a parser generator or an existing compiler frontend, the 
 
 ## Resources
 
+### LLVM Documentation
+
+The official LLVM documentation is the best reference for LLVM IR syntax, instructions, types, control flow, and other language details:
+
+- [LLVM Language Reference Manual](https://llvm.org/docs/LangRef.html)
+
+It is especially useful when implementing the LLVM backend and looking up instructions such as `icmp`, `br`, `zext`, `load`, and `store`.
+
+### LLVM Tutorial
+
 A useful resource for learning how to build a first compiler frontend with LLVM is the official LLVM tutorial:
 
 - [LLVM — My First Language Frontend with LLVM](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
 
-The tutorial walks through many of the same core compiler concepts used in this project, including lexing, parsing, AST construction, and LLVM IR generation.
+The tutorial covers many of the same core concepts used in this project, including lexing, parsing, AST construction, control flow, and LLVM IR generation.
+
+### Compiler Fundamentals
+
+For a deeper understanding of compiler design and implementation:
+
+- **Andrew W. Appel — *Modern Compiler Implementation in C (1998)***
+
+Although the book uses C rather than Java, its discussion of compiler fundamentals is largely language-agnostic. It covers topics such as lexical analysis, parsing, abstract syntax trees, semantic analysis and more. 
