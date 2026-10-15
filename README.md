@@ -1,4 +1,5 @@
 # cowlang
+Compiler for the cowlang programming language
 
 **cowlang** is a small programming language and compiler written from scratch in Java.
 
