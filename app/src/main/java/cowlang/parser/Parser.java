@@ -53,7 +53,23 @@ public class Parser{
 			return parseWhenStatement();
 		}
 		
+		if(match(TokenType.WHILE)){
+			return parseWhileStatement();
+		}
+		
 		return parseAssignment();
+	}
+	
+	private Stmt parseWhileStatement(){
+		consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
+		
+		Expr condition = parseExpression();
+		
+		consume(TokenType.RIGHT_PAREN, "Expected ')' after while condition.");
+		
+		List<Stmt> stmts = parseBlock();
+		
+		return new WhileStmt(condition,stmts);
 	}
 	
 	private Stmt parseWhenStatement(){
