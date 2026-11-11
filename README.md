@@ -41,6 +41,8 @@ cowlang currently supports:
 - `yell` for output with a newline
 - `whisper` for output without a newline
 - `when` / `otherwise` control flow
+- `while` loops
+- `loop N times` counted loops
 - `//` comments
 
 ### Assignment
@@ -363,8 +365,6 @@ Some syntax is already represented in the frontend but does not yet have complet
 
 Future work includes:
 
-- `while` loops
-- `loop N times`
 - Functions using `~>`
 - Function parameters
 - `return`
@@ -403,7 +403,7 @@ The official LLVM documentation is the best reference for LLVM IR syntax, instru
 
 - [LLVM Language Reference Manual](https://llvm.org/docs/LangRef.html)
 
-It is especially useful when implementing the LLVM backend and looking up instructions such as `icmp`, `br`, `zext`, `load`, and `store`.
+It is especially useful when implementing the LLVM backend and looking up specific LLVM instructions.
 
 ### LLVM Tutorial
 
@@ -419,4 +419,4 @@ For a deeper understanding of compiler design and implementation:
 
 - **Andrew W. Appel — *Modern Compiler Implementation in C (1998)***
 
-Although the book uses C rather than Java (there exists a book by the same author for Java, but I do not own that book unfortunately), its discussion of compiler fundamentals is largely language-agnostic. It covers topics such as lexical analysis, parsing, abstract syntax trees, semantic analysis and more. 
+Although the book uses C rather than Java, the compiler fundamentals it teaches are largely language-agnostic. Appel also wrote a Java edition, Modern Compiler Implementation in Java.
