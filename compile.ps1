@@ -58,3 +58,6 @@ if ($LASTEXITCODE -ne 0) {
     Write-Error "Native compilation failed."
     exit $LASTEXITCODE
 }
+
+Write-Host "Running executable..."
+& $exeFile

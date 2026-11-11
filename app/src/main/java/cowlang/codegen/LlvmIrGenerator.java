@@ -10,6 +10,7 @@ import cowlang.ast.VariableExpr;
 import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
 import cowlang.ast.WhenStmt;
+import cowlang.ast.WhileStmt;
 
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +88,11 @@ public class LlvmIrGenerator{
 		
 		if(statement instanceof WhenStmt when){
 			generateWhen(when);
+			return;
+		}
+		
+		if(statement instanceof WhileStmt whileStmt){
+			generateWhile(whileStmt);
 			return;
 		}
 		
@@ -230,6 +236,32 @@ public class LlvmIrGenerator{
 			return resultTemporary;
 		}
 	}
+	
+	private void generateWhile(WhileStmt whileStmt){
+		int labelId = nextLabelId();
+		String condLabel = "while.cond." + labelId;
+		String bodyLabel = "while.body." + labelId;
+		String endLabel  = "while.end." + labelId;
+		
+		output.append("br label %" + condLabel + "\n");
+		output.append(condLabel + ":" + "\n");
+		
+		String i32condition = generateExpression(whileStmt.condition());
+		String temporary = nextTemporary();
+		String condition = temporary + " = " + " icmp ne i32 " + i32condition + ", 0";
+		
+		output.append(condition + "\n");
+		
+		output.append("br i1 " + temporary + ", label %" + bodyLabel + ", label %" + endLabel + "\n");
+		output.append(bodyLabel + ":" + "\n");
+		for(Stmt s : whileStmt.statements()){
+			generateStatement(s);
+		}
+		output.append("br label %" + condLabel + "\n");
+		output.append(endLabel + ":\n");
+		
+	}
+	
 	
 	private void generateYell(YellStmt yell){
 		String value = generateExpression(yell.value());

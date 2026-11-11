@@ -1,4 +1,4 @@
 package cowlang.ast;
 
-public sealed interface Stmt permits AssignmentStmt, YellStmt, WhisperStmt, WhenStmt  {}
+public sealed interface Stmt permits AssignmentStmt, YellStmt, WhisperStmt, WhenStmt, WhileStmt  {}
 

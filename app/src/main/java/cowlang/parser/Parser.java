@@ -16,6 +16,7 @@ import cowlang.ast.Stmt;
 import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
 import cowlang.ast.WhenStmt;
+import cowlang.ast.WhileStmt;
 
 import java.util.ArrayList;
 import java.util.List;
