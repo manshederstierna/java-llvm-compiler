@@ -11,6 +11,8 @@ import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
 import cowlang.ast.WhenStmt;
 import cowlang.ast.WhileStmt;
+import cowlang.ast.LoopStmt;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -93,6 +95,11 @@ public class LlvmIrGenerator{
 		
 		if(statement instanceof WhileStmt whileStmt){
 			generateWhile(whileStmt);
+			return;
+		}
+		
+		if(statement instanceof LoopStmt loop){
+			generateLoop(loop);
 			return;
 		}
 		
@@ -235,6 +242,36 @@ public class LlvmIrGenerator{
 			);
 			return resultTemporary;
 		}
+	}
+	
+	private void generateLoop(LoopStmt loop){
+		String count = generateExpression(loop.count());
+		int labelId = nextLabelId();
+		String condLabel = "loop.cond." + labelId;
+		String bodyLabel = "loop.body." + labelId;
+		String endLabel = "loop.end." + labelId;
+		
+		output.append("%loop.counter." + labelId + " = alloca i32" + "\n"); // counter for the loop
+		output.append("store i32 0, ptr %loop.counter." + labelId + "\n");
+		
+		output.append("br label %" + condLabel + "\n");
+		output.append(condLabel + ":" + "\n");
+		String counterValue = nextTemporary();
+		output.append(counterValue + " = " + "load i32, ptr %loop.counter." + labelId + "\n");
+		
+		String continueValue = nextTemporary();
+		output.append(continueValue + " = " + "icmp slt i32 " + counterValue + ", " + count + "\n");
+		output.append("br i1 " + continueValue + ", label %" + bodyLabel + ", label %" + endLabel + "\n");
+		
+		output.append(bodyLabel + ":" + "\n");
+		for(Stmt stmt : loop.statements()){
+			generateStatement(stmt);
+		}
+		String newValue = nextTemporary();
+		output.append(newValue + " = " + "add i32 " + counterValue + ", 1" + "\n");
+		output.append("store i32 " + newValue + ", ptr %loop.counter." + labelId + "\n");
+		output.append("br label %" + condLabel + "\n");
+		output.append(endLabel + ":" + "\n");
 	}
 	
 	private void generateWhile(WhileStmt whileStmt){

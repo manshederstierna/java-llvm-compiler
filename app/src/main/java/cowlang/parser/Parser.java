@@ -17,6 +17,7 @@ import cowlang.ast.YellStmt;
 import cowlang.ast.WhisperStmt;
 import cowlang.ast.WhenStmt;
 import cowlang.ast.WhileStmt;
+import cowlang.ast.LoopStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +59,21 @@ public class Parser{
 			return parseWhileStatement();
 		}
 		
+		if(match(TokenType.LOOP)){
+			return parseLoopStatement();
+		}
+		
 		return parseAssignment();
 	}
 	
+	private Stmt parseLoopStatement(){
+		Expr expr = parseExpression();
+		consume(TokenType.TIMES, "Expected 'times' after loop count.");
+		List<Stmt> stmts = parseBlock();
+		
+		return new LoopStmt(expr,stmts);
+		
+	}
 	private Stmt parseWhileStatement(){
 		consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
 		

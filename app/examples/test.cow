@@ -1,6 +1,3 @@
-x <- 0;
-yell 1;
-while (x < 20) {
-    yell x;
-    x <- x + 1;
+loop 5 times {
+    yell 7;
 ;}
